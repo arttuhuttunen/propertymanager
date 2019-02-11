@@ -22,8 +22,10 @@ public class lightswitchServer extends Thread {
         try {
             ServerSocket SS = new ServerSocket(port);
             SS.accept();
+            long threadId = Thread.currentThread().getId();
+            System.out.println("Thread n:o " + threadId + "running");
         } catch (IOException e) {e.printStackTrace();}
-        }
+    }
 
 
 }
