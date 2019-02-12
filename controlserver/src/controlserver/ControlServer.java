@@ -100,9 +100,8 @@ public class ControlServer {
 
     private void startServers() {
         //TODO: Start your RMI- and socket-servers here
-        lightswitchServer ls = new lightswitchServer("localhost", 0);
-        new Thread(ls).run();
-        //RMIServer rmi = new RMIServer(0);
+        lightswitchServer ls = new lightswitchServer("localhost", 8080);
+        ls.start();
 
 
     }
