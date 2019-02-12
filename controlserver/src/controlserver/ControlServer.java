@@ -27,6 +27,8 @@ public class ControlServer {
     private Mode[] lightstatus = new Mode[10];
     private ConcurrentHashMap<Integer, JButton> lights;
 
+    lightswitchServer ls = new lightswitchServer("localhost", 8080);
+
     public ControlServer() {
         //constructor
             light1.addActionListener(new buttonAction());
@@ -84,9 +86,18 @@ public class ControlServer {
 
     public void sendLightStatus(int ID, Mode input) {
         //TODO: Send change to lightswitches
-
-
+        Boolean valueForSending;
+        if (input == Mode.ON) {
+            valueForSending = true;
+        } else if (input == Mode.OFF) {
+            valueForSending = false;
+        } else {
+            throw new IllegalArgumentException();
+        }
+        ls.sendStatus(ID, valueForSending);
     }
+
+
     //Getter for Lightstatus
     public Mode getLightstatus(int ID) {
         return   lightstatus[ID-1];
@@ -100,7 +111,7 @@ public class ControlServer {
 
     private void startServers() {
         //TODO: Start your RMI- and socket-servers here
-        lightswitchServer ls = new lightswitchServer("localhost", 8080);
+
         ls.start();
 
 
