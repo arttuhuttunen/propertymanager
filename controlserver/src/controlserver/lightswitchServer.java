@@ -23,12 +23,13 @@ public class lightswitchServer extends Thread {
         System.out.println("Lightswitchserver started");
         try {
             long threadId = Thread.currentThread().getId();
-            System.out.println("Thread n:o " + threadId + "running");
+            System.out.println("Thread n:o " + threadId + " running");
 
             ServerSocket SS = new ServerSocket(port);
             Socket cs = SS.accept();
             PrintWriter out = new PrintWriter(cs.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+            System.out.println("Incoming connection from " + cs.getInetAddress() + "with port " + cs.getPort());
 
         } catch (IOException e) {e.printStackTrace();}
     }

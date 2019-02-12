@@ -4,7 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.io.*;
+import java.net.Socket;
 
 
 public class Lightswitch {
@@ -28,7 +29,27 @@ public class Lightswitch {
 
     protected void connectSwitch(int ID) {
         //TODO: Create an socket connection connection to server
-
+        int port = 8080;
+        try {
+            Socket s = new Socket("localhost", port);
+            new connectionHandler(s).start();
+        } catch (IOException e) {e.printStackTrace();}
+    }
+    static class connectionHandler extends Thread {
+        private Socket client;
+        public connectionHandler(Socket s) {
+            client = s;
+        }
+        public void run() {
+            try {
+                long threadId = Thread.currentThread().getId();
+                System.out.println("Thread n:o " + threadId + " running");
+                InputStream is = client.getInputStream();
+                OutputStream os = client.getOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(os);
+                ObjectInputStream in = new ObjectInputStream(is);
+            } catch (IOException e) {e.printStackTrace();}
+        }
     }
 
     protected void sendChange(int ID) {} {
