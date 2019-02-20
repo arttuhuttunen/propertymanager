@@ -29,16 +29,33 @@ public class lightswitchServer extends Thread {
             long threadId = Thread.currentThread().getId();
             System.out.println("Thread n:o " + threadId + " running");
             ServerSocket SS = new ServerSocket(port);
-            Socket cs = SS.accept();
-            PrintWriter out = new PrintWriter(cs.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
-            System.out.println("Incoming connection from " + cs.getInetAddress() + " with port " + cs.getPort());
+            while (true) {
+                Socket cs = SS.accept();
+                System.out.println("Incoming connection from " + cs.getInetAddress() + " with port " + cs.getPort());
+                new ConnHandler(cs).start();
+            }
         } catch (IOException e) {e.printStackTrace();}
+    }
+    static class ConnHandler extends Thread {
+        private Socket client;
+        protected ConnHandler(Socket s) {
+            client = s;
+        }
+        public void run() {
+            try {
+                long threadId = Thread.currentThread().getId();
+                System.out.println("Thread n:o " + threadId + " started");
+                PrintWriter out = new PrintWriter(client.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                System.out.println("Received data: " + in.readLine());
+            } catch (IOException e) {e.printStackTrace();}
+        }
     }
 
     protected void sendStatus(int ID, Boolean value) {
         int tempID = ID;
         Boolean tempValue = value;
+
     }
 }
 
