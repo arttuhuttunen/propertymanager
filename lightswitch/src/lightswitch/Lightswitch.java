@@ -32,25 +32,14 @@ public class Lightswitch {
         int port = 8080;
         try {
             Socket s = new Socket("localhost", port);
-            new connectionHandler(s).start();
+            InputStream is = s.getInputStream();
+            OutputStream os = s.getOutputStream();
+            //os.write(Integer.toString(ID).getBytes());
+            os.write("666\n".getBytes());
+            os.flush();
         } catch (IOException e) {e.printStackTrace();}
     }
-    static class connectionHandler extends Thread {
-        private Socket client;
-        public connectionHandler(Socket s) {
-            client = s;
-        }
-        public void run() {
-            try {
-                long threadId = Thread.currentThread().getId();
-                System.out.println("Thread n:o " + threadId + " running");
-                InputStream is = client.getInputStream();
-                OutputStream os = client.getOutputStream();
-                ObjectOutputStream out = new ObjectOutputStream(os);
-                ObjectInputStream in = new ObjectInputStream(is);
-            } catch (IOException e) {e.printStackTrace();}
-        }
-    }
+
 
     protected void sendChange(int ID) {} {
         //TODO: Send lightswitch action pressed to server
