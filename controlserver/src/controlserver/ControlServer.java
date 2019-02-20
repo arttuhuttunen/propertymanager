@@ -129,7 +129,7 @@ public class ControlServer {
         frame.pack();
         frame.setVisible(true);
         long threadId = Thread.currentThread().getId();
-        System.out.println("Thread n:o " + threadId + " running");
+        System.out.println("Thread n:o " + threadId + " started");
     }
 
 }

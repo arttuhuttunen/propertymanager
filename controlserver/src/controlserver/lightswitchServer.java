@@ -27,12 +27,17 @@ public class lightswitchServer extends Thread {
         System.out.println("Lightswitchserver started");
         try {
             long threadId = Thread.currentThread().getId();
-            System.out.println("Thread n:o " + threadId + " running");
+            System.out.println("Thread n:o " + threadId + " started");
+            int tempID;
             ServerSocket SS = new ServerSocket(port);
             while (true) {
                 Socket cs = SS.accept();
                 System.out.println("Incoming connection from " + cs.getInetAddress() + " with port " + cs.getPort());
-                new ConnHandler(cs).start();
+                BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+                tempID = Integer.parseInt(in.readLine());
+                Socket socket = sockets[tempID - 1];
+                System.out.println("Light with id " + tempID + " connected");
+                new ConnHandler(socket).start();
             }
         } catch (IOException e) {e.printStackTrace();}
     }
