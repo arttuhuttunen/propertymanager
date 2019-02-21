@@ -15,11 +15,13 @@ public class lightswitchServer extends Thread {
     private String IP;
     private int port;
     private Socket[] sockets = new Socket[8];
+    ControlServer master;
 
     public lightswitchServer(String IP, int port) {
       //constructor, create server here and bind it to IP & port
         this.IP = IP;
         this.port = port;
+        ControlServer master;
     }
 
     public void run() {
@@ -37,14 +39,20 @@ public class lightswitchServer extends Thread {
                 tempID = Integer.parseInt(in.readLine());
                 System.out.println("Light with id " + tempID + " connected");
                 sockets[tempID - 1] = cs;
-                new ConnHandler(sockets[tempID -1 ]).start();
+                ConnHandler ch = new ConnHandler(sockets[tempID - 1], tempID);
+                ch.master = this;
+                ch.start();
             }
         } catch (IOException e) {e.printStackTrace();}
     }
     static class ConnHandler extends Thread {
         private Socket client;
-        protected ConnHandler(Socket s) {
+        lightswitchServer master;
+        String tempString;
+        int ID;
+        protected ConnHandler(Socket s, int ID) {
             client = s;
+            this.ID = ID;
         }
         public void run() {
             try {
@@ -53,8 +61,16 @@ public class lightswitchServer extends Thread {
                 PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 System.out.println("Received data: " + in.readLine());
+                while (true) {
+                    tempString = in.readLine();
+                    master.receiveStatus(tempString, ID);
+                }
             } catch (IOException e) {e.printStackTrace();}
         }
+    }
+
+    protected void receiveStatus (String status, int ID) {
+        master.setLightstatus(ID, status);
     }
 
     protected void sendStatus(int ID, Boolean value) {

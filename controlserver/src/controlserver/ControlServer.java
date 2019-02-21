@@ -65,6 +65,20 @@ public class ControlServer {
 
     }
 
+    public void setLightstatus (int ID, String status){
+        int arrayid = ID - 1;
+        if (status.equals("ON")) {
+            lights.get(ID).setText("Light "+ ID +" ON");
+            lightstatus[arrayid] = Mode.ON;
+            System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
+        } else if (status.equals("OFF")) {
+            lights.get(ID).setText("Light "+ ID +" OFF");
+            lightstatus[arrayid] = Mode.OFF;
+            System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
+        }
+        mainPanel.updateUI();
+    }
+
     public void toggleLightstatus(int ID) {
         int arrayid = ID -1;
         if(lightstatus[arrayid] == Mode.ON) {
@@ -111,7 +125,7 @@ public class ControlServer {
 
     private void startServers() {
         //TODO: Start your RMI- and socket-servers here
-
+        ls.master = this;
         ls.start();
 
 

@@ -17,6 +17,7 @@ public class Lightswitch {
     private Mode lightstatus;
     private enum Mode {OFF, ON, NOTCONNECTED}
     private static int ID;
+    private Socket s;
 
     public Lightswitch() {
         switchbutton.addActionListener(new ActionListener() {
@@ -29,11 +30,15 @@ public class Lightswitch {
         connectSwitch(ID);
     }
 
+    private Socket getSocket() {
+        return s;
+    }
+
     protected void connectSwitch(int ID) {
         //TODO: Create an socket connection connection to server
         int port = 8080;
         try {
-            Socket s = new Socket("localhost", port);
+            s = new Socket("localhost", port);
             OutputStream os = s.getOutputStream();
             String tempID = Integer.toString(ID);
             tempID += "\n";
@@ -70,8 +75,23 @@ public class Lightswitch {
     }
 
 
-    protected void sendChange(int ID) {} {
+    protected void sendChange(int ID)  {
         //TODO: Send lightswitch action pressed to server
+        String status;
+        Socket tempSocket = this.getSocket();
+        try{
+            PrintWriter out = new PrintWriter(tempSocket.getOutputStream(), true);
+            if (lightstatus == Mode.ON) {
+                setLightStatus(Mode.OFF);
+                status = "OFF\n";
+            } else if (lightstatus == Mode.OFF) {
+                setLightStatus(Mode.ON);
+                status = "ON\n";
+            } else {throw new IllegalArgumentException();}
+            out.write(status);
+            out.flush();
+            System.out.println("Sending status " + status + " to server");
+        } catch (IOException e) {e.printStackTrace();}
 
     }
 
