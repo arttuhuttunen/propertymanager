@@ -1,10 +1,13 @@
 package lightswitch;
 
+import javafx.scene.effect.Light;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.io.*;
+import java.net.Socket;
 
 
 public class Lightswitch {
@@ -14,6 +17,7 @@ public class Lightswitch {
     private Mode lightstatus;
     private enum Mode {OFF, ON, NOTCONNECTED}
     private static int ID;
+    private Socket s;
 
     public Lightswitch() {
         switchbutton.addActionListener(new ActionListener() {
@@ -26,20 +30,81 @@ public class Lightswitch {
         connectSwitch(ID);
     }
 
+    private Socket getSocket() {
+        return s;
+    }
+
     protected void connectSwitch(int ID) {
         //TODO: Create an socket connection connection to server
-
+        int port = 8080;
+        try {
+            s = new Socket("localhost", port);
+            OutputStream os = s.getOutputStream();
+            String tempID = Integer.toString(ID);
+            tempID += "\n";
+            System.out.println("My ID is: " + tempID);
+            os.write(tempID.getBytes());
+            os.flush();
+            ConnListener cl = new ConnListener(s);
+            cl.master = this;
+            cl.start();
+        } catch (IOException e) {e.printStackTrace();}
+    }
+    class ConnListener extends Thread {
+        private Socket socket;
+        Lightswitch master;
+        String tempString;
+        private ConnListener(Socket s) {
+            socket = s;
+        }
+        public void run() {
+            try {
+                long threadId = Thread.currentThread().getId();
+                System.out.println("Connectionlistener started");
+                System.out.println("Thread n:o " + threadId + " started");
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                OutputStream os = socket.getOutputStream();
+                while (true) {
+                    System.out.println("Waiting for status change...");
+                    tempString = in.readLine();
+                    System.out.println(tempString);
+                    master.receiveStatus(tempString);
+                }
+            } catch (IOException e) {e.printStackTrace();}
+        }
     }
 
-    protected void sendChange(int ID) {} {
+
+    protected void sendChange(int ID)  {
         //TODO: Send lightswitch action pressed to server
+        String status;
+        Socket tempSocket = this.getSocket();
+        try{
+            PrintWriter out = new PrintWriter(tempSocket.getOutputStream(), true);
+            if (lightstatus == Mode.ON) {
+                setLightStatus(Mode.OFF);
+                status = "OFF\n";
+            } else if (lightstatus == Mode.OFF) {
+                setLightStatus(Mode.ON);
+                status = "ON\n";
+            } else {throw new IllegalArgumentException();}
+            out.write(status);
+            out.flush();
+            System.out.println("Sending status " + status + " to server");
+        } catch (IOException e) {e.printStackTrace();}
 
     }
 
-    protected void receiveStatus() {
+    protected void receiveStatus(String statusStr) {
         //Set default to not connected
         Mode receivedMode = Mode.NOTCONNECTED;
         //TODO: receive status of the light from the server
+        System.out.println(statusStr);
+        if (statusStr.equals("ON")) {
+            receivedMode = Mode.ON;
+        } else if (statusStr.equals("OFF")) {
+            receivedMode = Mode.OFF;
+        } else {throw new IllegalStateException();}
 
 
         //Update view to correspond the received status

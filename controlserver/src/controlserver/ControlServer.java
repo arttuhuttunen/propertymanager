@@ -27,6 +27,8 @@ public class ControlServer {
     private Mode[] lightstatus = new Mode[10];
     private ConcurrentHashMap<Integer, JButton> lights;
 
+    lightswitchServer ls = new lightswitchServer("localhost", 8080);
+
     public ControlServer() {
         //constructor
             light1.addActionListener(new buttonAction());
@@ -63,6 +65,20 @@ public class ControlServer {
 
     }
 
+    public void setLightstatus (int ID, String status){
+        int arrayid = ID - 1;
+        if (status.equals("ON")) {
+            lights.get(ID).setText("Light "+ ID +" ON");
+            lightstatus[arrayid] = Mode.ON;
+            System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
+        } else if (status.equals("OFF")) {
+            lights.get(ID).setText("Light "+ ID +" OFF");
+            lightstatus[arrayid] = Mode.OFF;
+            System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
+        }
+        mainPanel.updateUI();
+    }
+
     public void toggleLightstatus(int ID) {
         int arrayid = ID -1;
         if(lightstatus[arrayid] == Mode.ON) {
@@ -84,9 +100,18 @@ public class ControlServer {
 
     public void sendLightStatus(int ID, Mode input) {
         //TODO: Send change to lightswitches
-
-
+        Boolean valueForSending;
+        if (input == Mode.ON) {
+            valueForSending = true;
+        } else if (input == Mode.OFF) {
+            valueForSending = false;
+        } else {
+            throw new IllegalArgumentException();
+        }
+        ls.sendStatus(ID, valueForSending);
     }
+
+
     //Getter for Lightstatus
     public Mode getLightstatus(int ID) {
         return   lightstatus[ID-1];
@@ -100,6 +125,9 @@ public class ControlServer {
 
     private void startServers() {
         //TODO: Start your RMI- and socket-servers here
+        ls.master = this;
+        ls.start();
+
 
     }
 
@@ -114,6 +142,8 @@ public class ControlServer {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        long threadId = Thread.currentThread().getId();
+        System.out.println("Thread n:o " + threadId + " started");
     }
 
 }
