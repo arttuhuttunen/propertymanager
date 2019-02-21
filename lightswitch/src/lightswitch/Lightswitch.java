@@ -37,14 +37,17 @@ public class Lightswitch {
             OutputStream os = s.getOutputStream();
             String tempID = Integer.toString(ID);
             tempID += "\n";
-            System.out.println(tempID);
+            System.out.println("My ID is: " + tempID);
             os.write(tempID.getBytes());
             os.flush();
-            new ConnListener(s).start();
+            ConnListener cl = new ConnListener(s);
+            cl.master = this;
+            cl.start();
         } catch (IOException e) {e.printStackTrace();}
     }
-    static class ConnListener extends Thread {
+    class ConnListener extends Thread {
         private Socket socket;
+        Lightswitch master;
         String tempString;
         private ConnListener(Socket s) {
             socket = s;
@@ -52,13 +55,15 @@ public class Lightswitch {
         public void run() {
             try {
                 long threadId = Thread.currentThread().getId();
+                System.out.println("Connectionlistener started");
                 System.out.println("Thread n:o " + threadId + " started");
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 OutputStream os = socket.getOutputStream();
                 while (true) {
+                    System.out.println("Waiting for status change...");
                     tempString = in.readLine();
-                    Lightswitch ls = new Lightswitch();
-                    ls.receiveStatus(tempString);
+                    System.out.println(tempString);
+                    master.receiveStatus(tempString);
                 }
             } catch (IOException e) {e.printStackTrace();}
         }
@@ -74,6 +79,7 @@ public class Lightswitch {
         //Set default to not connected
         Mode receivedMode = Mode.NOTCONNECTED;
         //TODO: receive status of the light from the server
+        System.out.println(statusStr);
         if (statusStr.equals("ON")) {
             receivedMode = Mode.ON;
         } else if (statusStr.equals("OFF")) {

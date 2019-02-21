@@ -58,17 +58,17 @@ public class lightswitchServer extends Thread {
     }
 
     protected void sendStatus(int ID, Boolean value) {
-        int tempID = ID;
         Socket tempSocket = sockets[ID - 1];
         String valueToSend;
         if (value) {
-            valueToSend = "ON";
+            valueToSend = "ON\n";
         } else {
-            valueToSend = "OFF";
+            valueToSend = "OFF\n";
         }
         try {
             PrintWriter out = new PrintWriter(tempSocket.getOutputStream(), true);
             out.write(valueToSend);
+            System.out.println("Sending value to light id " + ID + " with value " + valueToSend);
             out.flush();
         } catch (IOException e) {e.printStackTrace();}
 
