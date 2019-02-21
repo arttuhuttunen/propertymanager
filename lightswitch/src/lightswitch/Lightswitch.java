@@ -34,7 +34,10 @@ public class Lightswitch {
             Socket s = new Socket("localhost", port);
             InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
-            os.write(Integer.toString(ID).getBytes());
+            String tempID = Integer.toString(ID);
+            tempID += "\n";
+            System.out.println(tempID);
+            os.write(tempID.getBytes());
             os.flush();
         } catch (IOException e) {e.printStackTrace();}
     }
