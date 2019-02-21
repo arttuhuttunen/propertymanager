@@ -1,5 +1,7 @@
 package lightswitch;
 
+import javafx.scene.effect.Light;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -32,14 +34,34 @@ public class Lightswitch {
         int port = 8080;
         try {
             Socket s = new Socket("localhost", port);
-            InputStream is = s.getInputStream();
             OutputStream os = s.getOutputStream();
             String tempID = Integer.toString(ID);
             tempID += "\n";
             System.out.println(tempID);
             os.write(tempID.getBytes());
             os.flush();
+            new ConnListener(s).start();
         } catch (IOException e) {e.printStackTrace();}
+    }
+    static class ConnListener extends Thread {
+        private Socket socket;
+        String tempString;
+        private ConnListener(Socket s) {
+            socket = s;
+        }
+        public void run() {
+            try {
+                long threadId = Thread.currentThread().getId();
+                System.out.println("Thread n:o " + threadId + " started");
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                OutputStream os = socket.getOutputStream();
+                while (true) {
+                    tempString = in.readLine();
+                    Lightswitch ls = new Lightswitch();
+                    ls.receiveStatus(tempString);
+                }
+            } catch (IOException e) {e.printStackTrace();}
+        }
     }
 
 
@@ -48,10 +70,15 @@ public class Lightswitch {
 
     }
 
-    protected void receiveStatus() {
+    protected void receiveStatus(String statusStr) {
         //Set default to not connected
         Mode receivedMode = Mode.NOTCONNECTED;
         //TODO: receive status of the light from the server
+        if (statusStr.equals("ON")) {
+            receivedMode = Mode.ON;
+        } else if (statusStr.equals("OFF")) {
+            receivedMode = Mode.OFF;
+        } else {throw new IllegalStateException();}
 
 
         //Update view to correspond the received status

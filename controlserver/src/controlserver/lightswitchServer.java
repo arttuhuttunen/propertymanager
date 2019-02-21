@@ -36,8 +36,8 @@ public class lightswitchServer extends Thread {
                 BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
                 tempID = Integer.parseInt(in.readLine());
                 System.out.println("Light with id " + tempID + " connected");
-                Socket socket = sockets[tempID - 1];
-                new ConnHandler(socket).start();
+                sockets[tempID - 1] = cs;
+                new ConnHandler(sockets[tempID -1 ]).start();
             }
         } catch (IOException e) {e.printStackTrace();}
     }
@@ -59,7 +59,18 @@ public class lightswitchServer extends Thread {
 
     protected void sendStatus(int ID, Boolean value) {
         int tempID = ID;
-        Boolean tempValue = value;
+        Socket tempSocket = sockets[ID - 1];
+        String valueToSend;
+        if (value) {
+            valueToSend = "ON";
+        } else {
+            valueToSend = "OFF";
+        }
+        try {
+            PrintWriter out = new PrintWriter(tempSocket.getOutputStream(), true);
+            out.write(valueToSend);
+            out.flush();
+        } catch (IOException e) {e.printStackTrace();}
 
     }
 }
