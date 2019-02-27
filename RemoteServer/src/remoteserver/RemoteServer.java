@@ -22,9 +22,12 @@ public class RemoteServer {
     }
 
     public static void main(String[] args) {
-        RemoteServer RS = new RemoteServer();
+        long threadID;
+        threadID = Thread.currentThread().getId();
+        System.out.println("Thread n:o " + threadID + " started");
         WWWServer ws = new WWWServer(new InetSocketAddress((8000)));
         ws.run();
+
     }
 
 }

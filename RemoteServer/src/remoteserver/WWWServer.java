@@ -21,6 +21,9 @@ public class WWWServer {
             server = HttpServer.create(new InetSocketAddress(8000), 0);
         } catch (IOException e) {e.printStackTrace();}
         server.createContext("/", new WWWHandler());
+        long threadID;
+        threadID = Thread.currentThread().getId();
+        System.out.println("Thread n:o " + threadID + " started");
 
     }
     public void run() {
@@ -32,7 +35,9 @@ public class WWWServer {
     static class WWWHandler implements HttpHandler {
         public void handle(HttpExchange t)  throws IOException{
 
-
+            long threadID;
+            threadID = Thread.currentThread().getId();
+            System.out.println("Thread n:o " + threadID + " started");
             File file = new File("RemoteServer\\src\\remoteserver\\index.html");
             String mime = "text/html";
 
@@ -44,12 +49,12 @@ public class WWWServer {
             byte [] bytearray  = new byte [(int)file.length()];
 
             FileInputStream fs = new FileInputStream(file);
-            System.out.println("Run test step 1 completed");
             BufferedInputStream bs = new BufferedInputStream(fs);
             bs.read(bytearray, 0, bytearray.length);
             t.sendResponseHeaders(200, file.length());
             OutputStream os = t.getResponseBody();
             os.write(bytearray, 0, bytearray.length);
+            System.out.println("Sending html file...");
             os.close();
             fs.close();
         }

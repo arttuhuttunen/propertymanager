@@ -1,8 +1,11 @@
 package controlserver;
 
-public class RMIServer {
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
-public RMIServer (int RMIport) {
+public class RMIServer extends UnicastRemoteObject  {
+
+public RMIServer (int RMIport) throws RemoteException {
     //Constructor
     //You will need Security manager to make RMI work
     //Remember to add security.policy to your run time VM options
@@ -11,7 +14,9 @@ public RMIServer (int RMIport) {
         System.setSecurityManager(new SecurityManager());
     }
 
+
 }
+
 
 }
 
