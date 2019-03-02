@@ -34,20 +34,21 @@ public class WWWServer {
     //TODO: Create handlers for requests
     static class WWWHandler implements HttpHandler {
         public void handle(HttpExchange t)  throws IOException{
-
+            //Thread printing procedure for debugging
             long threadID;
             threadID = Thread.currentThread().getId();
             System.out.println("Thread n:o " + threadID + " started");
+
+
+
+
             File file = new File("RemoteServer\\src\\remoteserver\\index.html");
             String mime = "text/html";
-
             System.out.println("Loading file from " + file.getPath());
-
             Headers h = t.getResponseHeaders();
             h.set("Content type", mime);
             String response = "WWW server up and running";
             byte [] bytearray  = new byte [(int)file.length()];
-
             FileInputStream fs = new FileInputStream(file);
             BufferedInputStream bs = new BufferedInputStream(fs);
             bs.read(bytearray, 0, bytearray.length);
@@ -55,8 +56,15 @@ public class WWWServer {
             OutputStream os = t.getResponseBody();
             os.write(bytearray, 0, bytearray.length);
             System.out.println("Sending html file...");
-            os.close();
-            fs.close();
+
+
+            if(t.getRequestMethod().equals("get")){
+                String resp = "This is GET response test";
+                t.sendResponseHeaders(200, resp.getBytes().length);
+                os = t.getResponseBody();
+                os.write(resp.getBytes());
+
+            }
         }
     }
 
