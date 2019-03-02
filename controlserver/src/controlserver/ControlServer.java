@@ -130,9 +130,9 @@ public class ControlServer {
         //TODO: Start your RMI- and socket-servers here
         ls.master = this;
         ls.start();
-        try {
-            RMIServer rmi = new RMIServer(6666);
-        } catch (RemoteException r) {r.printStackTrace();}
+        //try {
+        //    RMIServer rmi = new RMIServer(6666);
+        //} catch (RemoteException r) {r.printStackTrace();}
 
 
 

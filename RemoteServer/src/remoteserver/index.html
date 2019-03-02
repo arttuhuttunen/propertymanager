@@ -6,8 +6,11 @@
 </head>
 <body>
 <h1> House control system </h1>
-<form method="get" action="index.html">
-    <button type="button" >Refresh status</button>
+<h2>$testvalue</h2>
+<input type="button" value="Refresh page" onclick="history.go(0)"/>
+<form method="post">
+    <input type="text" name="testfield">
+    <input type="submit" value="Submit">
 </form>
 <form>
     Temperature:<br>
