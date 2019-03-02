@@ -3,6 +3,8 @@ package remoteserver;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import com.sun.corba.se.spi.activation.Server;
@@ -49,28 +51,53 @@ public class WWWServer {
                 os.write(resp.getBytes());
             }
 
+
+            //HTML file loading
             File file = new File("RemoteServer\\src\\remoteserver\\index.html");
             String mime = "text/html";
             System.out.println("Loading file from " + file.getPath());
+            htmlEditor(file);
+            File newFile = new File("RemoteServer\\src\\remoteserver\\index2.html");
 
 
 
+            //Sending HTML-file
             Headers h = t.getResponseHeaders();
             h.set("Content type", mime);
-            String response = "WWW server up and running";
-            byte [] bytearray  = new byte [(int)file.length()];
-            FileInputStream fs = new FileInputStream(file);
+            byte [] bytearray  = new byte [(int)newFile.length()];
+            FileInputStream fs = new FileInputStream(newFile);
             BufferedInputStream bs = new BufferedInputStream(fs);
             bs.read(bytearray, 0, bytearray.length);
             t.sendResponseHeaders(200, file.length());
             os = t.getResponseBody();
             os.write(bytearray, 0, bytearray.length);
+            os.close();
             System.out.println("Sending html file...");
 
+        }
+        private void htmlEditor(File html) {
+            try {
+                String line;
+                List<String> lines = new ArrayList<String>();
+                FileReader fileReader = new FileReader(html);
+                BufferedReader bufferedReader = new BufferedReader(fileReader);
+                while ((line = bufferedReader.readLine()) != null) {
+                    if (line.contains("$testvalue")) {
+                        line = line.replace("$testvalue", "If you see this, html file replacing works properly");
+                    }
+                    lines.add(line);
+                }
+                fileReader.close();
+                bufferedReader.close();
 
-
-
-
+                FileWriter fileWriter = new FileWriter("RemoteServer\\src\\remoteserver\\index2.html");
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                for (String s : lines) {
+                    bufferedWriter.write(s);
+                }
+                bufferedWriter.flush();
+                bufferedWriter.close();
+            } catch (IOException e) {e.printStackTrace();}
         }
     }
 
