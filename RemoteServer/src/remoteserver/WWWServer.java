@@ -3,11 +3,10 @@ package remoteserver;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import com.sun.corba.se.spi.activation.Server;
+import com.sun.deploy.net.HttpResponse;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -17,8 +16,9 @@ import com.sun.net.httpserver.HttpServer;
 public class WWWServer {
 
     private HttpServer server;
-    protected enum Mode {OFF, ON, NOTCONNECTED}
-    protected Mode[] lightstatus = new Mode[10];
+    private enum Mode {OFF, ON, NOTCONNECTED}
+    private Mode[] lightstatus = new Mode[10];
+    private String temperature= "666";
 
 
     public WWWServer(InetSocketAddress address) {
@@ -39,10 +39,27 @@ public class WWWServer {
         server.start();
     }
 
+    public void setLightstatus(int lightID, Mode value) {
+        lightstatus[lightID] = value;
+    }
+    public void setTemperature(String temperature) {
+        this.temperature = temperature;
+    }
+    public Mode getLightstatus(int lightID) {
+        return lightstatus[lightID];
+    }
 
     //TODO: Create handlers for requests
     static class WWWHandler implements HttpHandler {
         WWWServer master;
+        private void redirectToIndex(HttpExchange t) throws IOException {
+            Headers headers = t.getResponseHeaders();
+            headers.add("Content-type", "text/html");
+            headers.add("Location", "/");
+            t.sendResponseHeaders(303, 0);
+            t.close();
+        }
+
         public void handle(HttpExchange t)  throws IOException{
 
             //Thread printing procedure for debugging
@@ -52,10 +69,46 @@ public class WWWServer {
             OutputStream os;
 
             if(t.getRequestMethod().equals("POST")) {
-                String resp = "This is GET response test";
+
+                //System.out.println(t.getRequestBody());
+                /*String resp = "This is GET response test";
                 t.sendResponseHeaders(200, resp.getBytes().length);
                 os = t.getResponseBody();
-                os.write(resp.getBytes());
+                os.write(resp.getBytes());*/
+
+
+
+                InputStream io = t.getRequestBody();
+                BufferedReader in = new BufferedReader(new InputStreamReader(io));
+                String inputString = in.readLine();
+                System.out.println(inputString);
+                String attribute = inputString.substring(0, inputString.indexOf('='));
+                System.out.println(attribute);
+                if (attribute.contains("ls")) {
+                    System.out.println("LS debug");
+                    int lsInt = Integer.parseInt(attribute.substring(2));
+                    System.out.println("Ls test with id" + lsInt);
+                    if (master.getLightstatus(lsInt) == Mode.ON) {
+                        master.setLightstatus(lsInt, Mode.OFF);
+                        redirectToIndex(t);
+                    } else if (master.getLightstatus(lsInt) == Mode.OFF) {
+                        master.setLightstatus(lsInt, Mode.ON);
+                        redirectToIndex(t);
+                    }
+                }
+                if (attribute.contains("temperature")) {
+                    String temperature = inputString.substring(inputString.indexOf('='));
+                    master.setTemperature(temperature);
+                    redirectToIndex(t);
+                }
+                /*Headers headers = t.getResponseHeaders();
+                headers.add("Content-type", "text/html");
+                headers.add("Location", "/");
+                t.sendResponseHeaders(303, 0);
+                t.close();*/
+
+
+
             }
 
 
@@ -83,6 +136,7 @@ public class WWWServer {
 
         }
         private void htmlEditor(File html) {
+            //This loop assigns test values to buttons
             for (int i = 1; i < 10; i++) {
                 if (i % 2 == 0) {
                     master.lightstatus[i] = Mode.ON;
@@ -101,6 +155,10 @@ public class WWWServer {
                     if (line.contains("$testvalue")) {
                         line = line.replace("$testvalue", "If you see this, html file replacing works properly");
                     }
+                    if (line.contains("$temperature")) {
+                        line = line.replace("$temperature", master.temperature);
+                    }
+                    //Loop changes button values to light values
                     for (int i = 1; i < 10; i++) {
                         if(line.contains("$value" + i)) {
                             line = line.replace("$value" + i, master.lightstatus[i].toString());
