@@ -17,6 +17,9 @@ import com.sun.net.httpserver.HttpServer;
 public class WWWServer {
 
     private HttpServer server;
+    protected enum Mode {OFF, ON, NOTCONNECTED}
+    protected Mode[] lightstatus = new Mode[10];
+
 
     public WWWServer(InetSocketAddress address) {
         //TODO: Create http-server instance and run it
@@ -24,7 +27,9 @@ public class WWWServer {
         try {
             server = HttpServer.create(new InetSocketAddress(8000), 0);
         } catch (IOException e) {e.printStackTrace();}
-        server.createContext("/", new WWWHandler());
+        WWWHandler WWW = new WWWHandler();
+        WWW.master = this;
+        server.createContext("/", WWW);
         long threadID;
         threadID = Thread.currentThread().getId();
         System.out.println("Thread n:o " + threadID + " started");
@@ -37,7 +42,9 @@ public class WWWServer {
 
     //TODO: Create handlers for requests
     static class WWWHandler implements HttpHandler {
+        WWWServer master;
         public void handle(HttpExchange t)  throws IOException{
+
             //Thread printing procedure for debugging
             long threadID;
             threadID = Thread.currentThread().getId();
@@ -76,6 +83,15 @@ public class WWWServer {
 
         }
         private void htmlEditor(File html) {
+            for (int i = 1; i < 10; i++) {
+                if (i % 2 == 0) {
+                    master.lightstatus[i] = Mode.ON;
+                } else {
+                    master.lightstatus[i] = Mode.OFF;
+                }
+            }
+
+
             try {
                 String line;
                 List<String> lines = new ArrayList<String>();
@@ -84,6 +100,11 @@ public class WWWServer {
                 while ((line = bufferedReader.readLine()) != null) {
                     if (line.contains("$testvalue")) {
                         line = line.replace("$testvalue", "If you see this, html file replacing works properly");
+                    }
+                    for (int i = 1; i < 10; i++) {
+                        if(line.contains("$value" + i)) {
+                            line = line.replace("$value" + i, master.lightstatus[i].toString());
+                        }
                     }
                     lines.add(line);
                 }
