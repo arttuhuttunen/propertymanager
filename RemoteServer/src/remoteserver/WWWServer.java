@@ -34,6 +34,16 @@ public class WWWServer {
         threadID = Thread.currentThread().getId();
         System.out.println("Thread n:o " + threadID + " started");
 
+
+        //Sets light statuses for testing purposes before actually getting light statuses
+        for (int i = 1; i < 10; i++) {
+            if (i % 2 == 0) {
+                lightstatus[i] = Mode.ON;
+            } else {
+                lightstatus[i] = Mode.OFF;
+            }
+        }
+
     }
     public void run() {
         server.start();
@@ -90,14 +100,16 @@ public class WWWServer {
                     System.out.println("Ls test with id" + lsInt);
                     if (master.getLightstatus(lsInt) == Mode.ON) {
                         master.setLightstatus(lsInt, Mode.OFF);
+                        System.out.println(master.getLightstatus(lsInt));
                         redirectToIndex(t);
                     } else if (master.getLightstatus(lsInt) == Mode.OFF) {
                         master.setLightstatus(lsInt, Mode.ON);
+                        System.out.println(master.getLightstatus(lsInt));
                         redirectToIndex(t);
                     }
                 }
                 if (attribute.contains("temperature")) {
-                    String temperature = inputString.substring(inputString.indexOf('='));
+                    String temperature = inputString.substring(inputString.indexOf('=') + 1);
                     master.setTemperature(temperature);
                     redirectToIndex(t);
                 }
@@ -137,13 +149,7 @@ public class WWWServer {
         }
         private void htmlEditor(File html) {
             //This loop assigns test values to buttons
-            for (int i = 1; i < 10; i++) {
-                if (i % 2 == 0) {
-                    master.lightstatus[i] = Mode.ON;
-                } else {
-                    master.lightstatus[i] = Mode.OFF;
-                }
-            }
+
 
 
             try {
