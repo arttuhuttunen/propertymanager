@@ -27,7 +27,12 @@ public class RemoteServer {
         System.out.println("Thread n:o " + threadID + " started");
         WWWServer ws = new WWWServer(new InetSocketAddress((8000)));
         ws.run();
+        RemoteServer rs = new RemoteServer();
+        try {
+            RMIClient rm = new RMIClient();
+            rm.start();
 
+        } catch (Exception e) {e.printStackTrace();}
     }
 
 }
