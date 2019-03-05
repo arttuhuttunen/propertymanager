@@ -1,11 +1,15 @@
 package controlserver;
 
 import com.sun.net.httpserver.HttpServer;
+import remoteserver.remoteInterface;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -133,6 +137,9 @@ public class ControlServer {
         try {
             RMIServer rmi = new RMIServer(8888);
             rmi.run();
+            //remoteInterface stub = (remoteInterface) UnicastRemoteObject.exportObject(rmi, 0);
+            //Registry registry = LocateRegistry.createRegistry(8888);
+            //registry.rebind("RMIServer", rmi);
         } catch (RemoteException r) {r.printStackTrace();}
 
 

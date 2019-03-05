@@ -4,8 +4,11 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.Locale;
 
-public class RMIClient extends Thread{
+public class RMIClient extends Thread implements remoteInterface{
 
     remoteInterface comp;
     private static remoteInterface look_up;
@@ -20,10 +23,21 @@ public class RMIClient extends Thread{
 
 
     }
+    public String executeTask(String id) {
+        return null; //placeholder return
+    }
+    public String hello() {
+        return "wat";
+    }
     public void run() {
         try {
-            look_up = (remoteInterface) Naming.lookup("//localhost/RMIServer");
-            System.out.println(look_up.hello());
+            Registry registry = LocateRegistry.getRegistry(8888);
+            System.out.println(registry.list());
+            remoteInterface stub = (remoteInterface) registry.lookup("RMIServer");
+            String response = stub.hello();
+            System.out.println(response);
+            //look_up = (remoteInterface) Naming.lookup("//localhost/RMIServer");
+            //System.out.println(look_up.hello());
         } catch (Exception e) {e.printStackTrace();}
     }
 
