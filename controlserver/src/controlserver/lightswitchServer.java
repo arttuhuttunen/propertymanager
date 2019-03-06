@@ -1,15 +1,11 @@
 package controlserver;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.sun.security.ntlm.Server;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.stream.Collectors;
 
 public class lightswitchServer extends Thread {
     private String IP;
@@ -59,7 +55,6 @@ public class lightswitchServer extends Thread {
                 System.out.println("Thread n:o " + threadId + " started");
                 PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                System.out.println("Received data: " + in.readLine());
                 while (true) {
                     tempString = in.readLine();
                     master.receiveStatus(tempString, ID);

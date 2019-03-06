@@ -1,9 +1,6 @@
 package controlserver;
 
-import javafx.concurrent.Task;
 
-import java.net.MalformedURLException;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -44,10 +41,6 @@ public class RMIServer extends UnicastRemoteObject implements remoteInterface {
     }
 
     public void setLightstatus(String lightstatus, int ID) throws RemoteException {
-        System.out.println("RMIServer method setLightstatus() started");
-        master.setLightstatus(ID, lightstatus);
-    }
-    public void sendLightstatus(String lightstatus, int ID) {
         master.setLightstatus(ID, lightstatus);
     }
 

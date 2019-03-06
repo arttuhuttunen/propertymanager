@@ -1,16 +1,9 @@
 package controlserver;
 
-import com.sun.net.httpserver.HttpServer;
-import remoteserver.remoteInterface;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -76,7 +69,6 @@ public class ControlServer {
 
     public void setLightstatus (int ID, String status){
         int arrayid = ID -1;
-        System.out.println("ControlServer method setLightstatus() started");
         if (status.equals("ON")) {
             lights.get(ID).setText("Light "+ ID +" ON");
             lightstatus[arrayid] = Mode.ON;
@@ -130,7 +122,6 @@ public class ControlServer {
 
     //Getter for Lightstatus
     public String getLightstatus(int ID) {
-        //System.out.println("Controlserver method getLightstatus() called \n Lamp id is: " + ID + " and return status is " + lightstatus[ID]);
         return lightstatus[ID - 1].toString();
     }
 
@@ -151,9 +142,6 @@ public class ControlServer {
             RMIServer rmi = new RMIServer(8888);
             rmi.master = this;
             rmi.run();
-            //remoteInterface stub = (remoteInterface) UnicastRemoteObject.exportObject(rmi, 0);
-            //Registry registry = LocateRegistry.createRegistry(8888);
-            //registry.rebind("RMIServer", rmi);
         } catch (RemoteException r) {r.printStackTrace();}
 
 
