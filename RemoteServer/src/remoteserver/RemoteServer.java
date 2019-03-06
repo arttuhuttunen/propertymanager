@@ -1,26 +1,39 @@
 package remoteserver;
-import java.rmi
-import java.util
-import java.rmi.server
+//import java.util.rmi;
+//import java.util;
+//import java.rmi.server;
+
+import java.net.InetSocketAddress;
 
 public class RemoteServer {
 
     public RemoteServer() {
         //TODO: create and start your servers, make connection needed
-        getClientHost();
+
+        /*getClientHost();
         getLog();
         setLog(OutputStream out);
         public static String getClientHost()
                             throws ServerNotActiveException;
         public static void setLog(OutputStream out);
         public static PrintStream getLog();
-
+*/
 
     }
 
     public static void main(String[] args) {
-        RemoteServer RS = new RemoteServer();
+        long threadID;
+        threadID = Thread.currentThread().getId();
+        System.out.println("Thread n:o " + threadID + " started");
+        //RemoteServer rs = new RemoteServer();
+        try {
+            RMIClient rm = new RMIClient();
+            WWWServer ws = new WWWServer(new InetSocketAddress((8000)));
+            rm.start();
+            ws.RMImaster = rm;
+            ws.run();
 
+        } catch (Exception e) {e.printStackTrace();}
     }
 
 }

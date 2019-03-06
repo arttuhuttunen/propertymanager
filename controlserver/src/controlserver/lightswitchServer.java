@@ -21,7 +21,6 @@ public class lightswitchServer extends Thread {
       //constructor, create server here and bind it to IP & port
         this.IP = IP;
         this.port = port;
-        ControlServer master;
     }
 
     public void run() {
