@@ -50,9 +50,10 @@ public class WWWServer {
         server.start();
     }
 
-    public void setLightstatus(int lightID, Mode value) throws RemoteException {
+    public void setLightstatus(int lightID, String value) throws RemoteException {
         //lightstatus[lightID] = value;
-        RMImaster.sendLightstatus(value.toString(), lightID);
+        System.out.println("WWWServer method setLightstatus() started");
+        RMImaster.sendLightstatus(value, lightID);
     }
     public void setTemperature(String temperature) throws RemoteException{
         RMImaster.sendTemperature(temperature);
@@ -95,16 +96,18 @@ public class WWWServer {
                 System.out.println(inputString);
                 String attribute = inputString.substring(0, inputString.indexOf('='));
                 System.out.println(attribute);
+
+                //Parces post request anc perform operation based on element
                 if (attribute.contains("ls")) {
                     System.out.println("LS debug");
                     int lsInt = Integer.parseInt(attribute.substring(2));
-                    System.out.println("Ls test with id" + lsInt);
-                    if (master.getLightstatus(lsInt) == "ON") {
-                        master.setLightstatus(lsInt, Mode.OFF);
-                        System.out.println(master.getLightstatus(lsInt));
+                    System.out.println("Ls test with id " + lsInt);
+                    if (master.getLightstatus(lsInt).equals("OFF")) {
+                        master.setLightstatus(lsInt, "ON");
+
                         redirectToIndex(t);
-                    } else if (master.getLightstatus(lsInt) == "OFF") {
-                        master.setLightstatus(lsInt, Mode.ON);
+                    } else if (master.getLightstatus(lsInt).equals("ON")) {
+                        master.setLightstatus(lsInt, "OFF");
                         System.out.println(master.getLightstatus(lsInt));
                         redirectToIndex(t);
                     }
@@ -169,7 +172,6 @@ public class WWWServer {
                     if (line.contains("$temperature")) {
                         line = line.replace("$temperature", master.getTemperature());
                     }
-                    System.out.println("Temperature parsed and reaplaced");
                     //Loop changes button values to light values
                     for (int i = 1; i < 10; i++) {
                         if(line.contains("$value" + i)) {

@@ -59,9 +59,6 @@ public class ControlServer {
             lights.put(8, light8);
             lights.put(9, light9);
 
-        for (int i = 1; i < 10; i++) {
-            lightstatus[i] = Mode.OFF;
-        }
         temperature.setText("23");
         startServers();
 
@@ -78,15 +75,18 @@ public class ControlServer {
     }
 
     public void setLightstatus (int ID, String status){
-        int arrayid = ID - 1;
+        int arrayid = ID -1;
+        System.out.println("ControlServer method setLightstatus() started");
         if (status.equals("ON")) {
             lights.get(ID).setText("Light "+ ID +" ON");
             lightstatus[arrayid] = Mode.ON;
-            System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
+            System.out.println("Setting serverside lightstatus " + status + " to lamp id " + ID);
+            sendLightStatus(ID, lightstatus[arrayid]);
         } else if (status.equals("OFF")) {
             lights.get(ID).setText("Light "+ ID +" OFF");
             lightstatus[arrayid] = Mode.OFF;
-            System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
+            System.out.println("Setting serverside lightstatus " + status + " to lamp id " + ID);
+            sendLightStatus(ID, lightstatus[arrayid]);
         }
         mainPanel.updateUI();
     }
@@ -130,13 +130,13 @@ public class ControlServer {
 
     //Getter for Lightstatus
     public String getLightstatus(int ID) {
-        return   lightstatus[ID].toString();
+        //System.out.println("Controlserver method getLightstatus() called \n Lamp id is: " + ID + " and return status is " + lightstatus[ID]);
+        return lightstatus[ID - 1].toString();
     }
 
 
     //Getter for temperature
     public String getTemperature() {
-        System.out.println("Controlserver method getTemperature() called. \n Value is: " + temperature.getText());
         return temperature.getText();
     }
 
@@ -144,6 +144,9 @@ public class ControlServer {
         //TODO: Start your RMI- and socket-servers here
         ls.master = this;
         ls.start();
+        for (int i = 0; i < 10; i++) {
+            lightstatus[i] = Mode.OFF;
+        }
         try {
             RMIServer rmi = new RMIServer(8888);
             rmi.master = this;

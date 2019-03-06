@@ -48,6 +48,7 @@ public class RMIClient extends Thread implements remoteInterface{
     }
 
     public void sendLightstatus(String status, int ID) throws RemoteException{
+        System.out.println("RMIClient method sendLightstatus() called");
         stub.setLightstatus(status, ID);
     }
 

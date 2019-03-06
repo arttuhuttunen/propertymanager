@@ -44,6 +44,10 @@ public class RMIServer extends UnicastRemoteObject implements remoteInterface {
     }
 
     public void setLightstatus(String lightstatus, int ID) throws RemoteException {
+        System.out.println("RMIServer method setLightstatus() started");
+        master.setLightstatus(ID, lightstatus);
+    }
+    public void sendLightstatus(String lightstatus, int ID) {
         master.setLightstatus(ID, lightstatus);
     }
 

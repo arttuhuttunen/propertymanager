@@ -17,6 +17,8 @@ public interface remoteInterface extends Remote {
      String getTemperature() throws RemoteException;
      void setTemperature(String temperature) throws RemoteException;
 
+     void sendLightstatus(String s, int ID) throws RemoteException;
+
 
 
 }
