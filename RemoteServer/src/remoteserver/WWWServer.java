@@ -3,6 +3,7 @@ package remoteserver;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.Buffer;
+import java.rmi.RemoteException;
 import java.util.*;
 
 import com.sun.corba.se.spi.activation.Server;
@@ -16,9 +17,9 @@ import com.sun.net.httpserver.HttpServer;
 public class WWWServer {
 
     private HttpServer server;
+    RMIClient RMImaster;
     private enum Mode {OFF, ON, NOTCONNECTED}
-    private Mode[] lightstatus = new Mode[10];
-    private String temperature= "666";
+    //private Mode[] lightstatus = new Mode[10];
 
 
     public WWWServer(InetSocketAddress address) {
@@ -36,27 +37,34 @@ public class WWWServer {
 
 
         //Sets light statuses for testing purposes before actually getting light statuses
-        for (int i = 1; i < 10; i++) {
+        /*for (int i = 1; i < 10; i++) {
             if (i % 2 == 0) {
                 lightstatus[i] = Mode.ON;
             } else {
                 lightstatus[i] = Mode.OFF;
             }
-        }
+        }*/
 
     }
     public void run() {
         server.start();
     }
 
-    public void setLightstatus(int lightID, Mode value) {
-        lightstatus[lightID] = value;
+    public void setLightstatus(int lightID, Mode value) throws RemoteException {
+        //lightstatus[lightID] = value;
+        RMImaster.sendLightstatus(value.toString(), lightID);
     }
-    public void setTemperature(String temperature) {
-        this.temperature = temperature;
+    public void setTemperature(String temperature) throws RemoteException{
+        RMImaster.sendTemperature(temperature);
     }
-    public Mode getLightstatus(int lightID) {
-        return lightstatus[lightID];
+    public String getTemperature() throws RemoteException{
+        System.out.println("Method getTemperature() started");
+        //System.out.println(RMImaster.getTemperature());
+        System.out.println("Local getTemperature() value is : " + RMImaster.getTemperature());
+        return RMImaster.getTemperature();
+    }
+    public String getLightstatus(int lightID) throws RemoteException{
+        return RMImaster.getLightstatus(lightID);
     }
 
     //TODO: Create handlers for requests
@@ -80,13 +88,6 @@ public class WWWServer {
 
             if(t.getRequestMethod().equals("POST")) {
 
-                //System.out.println(t.getRequestBody());
-                /*String resp = "This is GET response test";
-                t.sendResponseHeaders(200, resp.getBytes().length);
-                os = t.getResponseBody();
-                os.write(resp.getBytes());*/
-
-
 
                 InputStream io = t.getRequestBody();
                 BufferedReader in = new BufferedReader(new InputStreamReader(io));
@@ -98,11 +99,11 @@ public class WWWServer {
                     System.out.println("LS debug");
                     int lsInt = Integer.parseInt(attribute.substring(2));
                     System.out.println("Ls test with id" + lsInt);
-                    if (master.getLightstatus(lsInt) == Mode.ON) {
+                    if (master.getLightstatus(lsInt) == "ON") {
                         master.setLightstatus(lsInt, Mode.OFF);
                         System.out.println(master.getLightstatus(lsInt));
                         redirectToIndex(t);
-                    } else if (master.getLightstatus(lsInt) == Mode.OFF) {
+                    } else if (master.getLightstatus(lsInt) == "OFF") {
                         master.setLightstatus(lsInt, Mode.ON);
                         System.out.println(master.getLightstatus(lsInt));
                         redirectToIndex(t);
@@ -129,6 +130,7 @@ public class WWWServer {
             String mime = "text/html";
             System.out.println("Loading file from " + file.getPath());
             htmlEditor(file);
+            System.out.println("Bug test 2: HTML editor finished");
             File newFile = new File("RemoteServer\\src\\remoteserver\\index2.html");
 
 
@@ -153,21 +155,25 @@ public class WWWServer {
 
 
             try {
+                System.out.println("Bug test 1, HTML editor started");
                 String line;
                 List<String> lines = new ArrayList<String>();
                 FileReader fileReader = new FileReader(html);
+                System.out.println("fileReader initialized");
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
+                System.out.println("bufferedReader started");
                 while ((line = bufferedReader.readLine()) != null) {
                     if (line.contains("$testvalue")) {
                         line = line.replace("$testvalue", "If you see this, html file replacing works properly");
                     }
                     if (line.contains("$temperature")) {
-                        line = line.replace("$temperature", master.temperature);
+                        line = line.replace("$temperature", master.getTemperature());
                     }
+                    System.out.println("Temperature parsed and reaplaced");
                     //Loop changes button values to light values
                     for (int i = 1; i < 10; i++) {
                         if(line.contains("$value" + i)) {
-                            line = line.replace("$value" + i, master.lightstatus[i].toString());
+                            line = line.replace("$value" + i, master.getLightstatus(i));
                         }
                     }
                     lines.add(line);
@@ -182,7 +188,7 @@ public class WWWServer {
                 }
                 bufferedWriter.flush();
                 bufferedWriter.close();
-            } catch (IOException e) {e.printStackTrace();}
+            } catch (Exception e) {e.printStackTrace();}
         }
     }
 

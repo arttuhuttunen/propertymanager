@@ -14,6 +14,7 @@ import remoteserver.remoteInterface;
 
 public class RMIServer extends UnicastRemoteObject implements remoteInterface {
     private int RMIport;
+    ControlServer master;
 
     public RMIServer (int RMIport) throws RemoteException {
         //Constructor
@@ -38,11 +39,25 @@ public class RMIServer extends UnicastRemoteObject implements remoteInterface {
         return null;
     }
 
+    public String getLightstatus(int ID) throws RemoteException {
+        return master.getLightstatus(ID);
+    }
+
+    public void setLightstatus(String lightstatus, int ID) throws RemoteException {
+        master.setLightstatus(ID, lightstatus);
+    }
+
+    public String getTemperature() throws RemoteException {
+        return master.getTemperature();
+    }
+
+    public void setTemperature(String temperature) throws RemoteException {
+        master.setTemperature(temperature);
+    }
+
     public void run() {
         try{
             System.out.println("Starting RMI server");
-            //remoteInterface stub = (remoteInterface) UnicastRemoteObject.exportObject(this, RMIport);
-            //RMIServer rmi = new RMIServer(1099);
             Registry registry = LocateRegistry.createRegistry(8888);
             registry.rebind("RMIServer", this);
 

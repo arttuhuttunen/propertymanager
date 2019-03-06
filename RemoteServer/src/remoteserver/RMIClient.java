@@ -11,7 +11,7 @@ import java.util.Locale;
 public class RMIClient extends Thread implements remoteInterface{
 
     remoteInterface comp;
-    private static remoteInterface look_up;
+    remoteInterface stub;
     public RMIClient() throws MalformedURLException, RemoteException, NotBoundException {
 
         //Security manager is needed. Remember policy file and VM parameter again.
@@ -23,21 +23,46 @@ public class RMIClient extends Thread implements remoteInterface{
 
 
     }
+
+    public String getLightstatus(int ID) throws RemoteException {
+        return stub.getLightstatus(ID);
+    }
+
+    public void setLightstatus(String lightstatus, int ID) throws RemoteException {
+
+    }
+
+    public String getTemperature() throws RemoteException {
+        return stub.getTemperature();
+    }
+
+    public void setTemperature(String temperature) throws RemoteException {
+
+    }
+
     public String executeTask(String id) {
         return null; //placeholder return
     }
     public String hello() {
-        return "wat";
+        return null;
     }
+
+    public void sendLightstatus(String status, int ID) throws RemoteException{
+        stub.setLightstatus(status, ID);
+    }
+
+    protected void sendTemperature(String temperature) throws RemoteException {
+        stub.setTemperature(temperature);
+    }
+
+
     public void run() {
         try {
             Registry registry = LocateRegistry.getRegistry(8888);
             System.out.println(registry.list());
-            remoteInterface stub = (remoteInterface) registry.lookup("RMIServer");
+            stub = (remoteInterface) registry.lookup("RMIServer");
             String response = stub.hello();
             System.out.println(response);
-            //look_up = (remoteInterface) Naming.lookup("//localhost/RMIServer");
-            //System.out.println(look_up.hello());
         } catch (Exception e) {e.printStackTrace();}
     }
 

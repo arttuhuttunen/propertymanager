@@ -58,6 +58,11 @@ public class ControlServer {
             lights.put(7, light7);
             lights.put(8, light8);
             lights.put(9, light9);
+
+        for (int i = 1; i < 10; i++) {
+            lightstatus[i] = Mode.OFF;
+        }
+        temperature.setText("23");
         startServers();
 
     }
@@ -83,6 +88,10 @@ public class ControlServer {
             lightstatus[arrayid] = Mode.OFF;
             System.out.println("Setting serverside lightstatus" + status + "to lamp id" + ID);
         }
+        mainPanel.updateUI();
+    }
+    public void setTemperature(String temperature) {
+        this.temperature.setText(temperature);
         mainPanel.updateUI();
     }
 
@@ -120,13 +129,14 @@ public class ControlServer {
 
 
     //Getter for Lightstatus
-    public Mode getLightstatus(int ID) {
-        return   lightstatus[ID-1];
+    public String getLightstatus(int ID) {
+        return   lightstatus[ID].toString();
     }
 
 
     //Getter for temperature
     public String getTemperature() {
+        System.out.println("Controlserver method getTemperature() called. \n Value is: " + temperature.getText());
         return temperature.getText();
     }
 
@@ -136,6 +146,7 @@ public class ControlServer {
         ls.start();
         try {
             RMIServer rmi = new RMIServer(8888);
+            rmi.master = this;
             rmi.run();
             //remoteInterface stub = (remoteInterface) UnicastRemoteObject.exportObject(rmi, 0);
             //Registry registry = LocateRegistry.createRegistry(8888);

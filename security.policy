@@ -1,4 +1,6 @@
 grant {
 	permission java.net.SocketPermission
 		"*:1024-65535", "connect, resolve, accept, listen";
+	permission java.io.FilePermission 
+		"RemoteServer\\src\\remoteserver\\-", "read, write";
 };
