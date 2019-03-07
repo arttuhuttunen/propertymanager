@@ -6,7 +6,10 @@
 </head>
 <body>
 <h1> House control system </h1>
-<input type="button" value="Refresh page" onclick="history.go(0)"/>
+<form action="/" method="get">
+    <!--<input type="button" value="Refresh page" onclick="history.go(0)"/>-->
+    <input type="submit" value="Refresh all"/>
+</form>
 <form action="" method="post">
     Temperature:<br>
     <input type="text" value="$temperature" name="temperature">

@@ -78,7 +78,6 @@ public class WWWServer {
                 InputStream io = t.getRequestBody();
                 BufferedReader in = new BufferedReader(new InputStreamReader(io));
                 String inputString = in.readLine();
-                System.out.println(inputString);
                 String attribute = inputString.substring(0, inputString.indexOf('='));
 
                 //Parces post request and perform operation based on element
@@ -105,7 +104,6 @@ public class WWWServer {
             File file = new File("RemoteServer\\src\\remoteserver\\index.html");
             String mime = "text/html";
             htmlEditor(file);
-            System.out.println("Bug test 2: HTML editor finished");
             File newFile = new File("RemoteServer\\src\\remoteserver\\index2.html");
 
 
