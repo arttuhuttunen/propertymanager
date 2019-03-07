@@ -104,9 +104,13 @@ public class ControlServer {
             sendLightStatus(ID, Mode.ON);
         }
         else {
-            lights.get(ID).setText("Light "+ ID +" ON");
-            lightstatus[arrayid] = Mode.ON;
-            sendLightStatus(ID, Mode.ON);
+            try {
+                sendLightStatus(ID, Mode.ON);
+                lights.get(ID).setText("Light "+ ID +" ON");
+                lightstatus[arrayid] = Mode.ON;
+            } catch (NullPointerException n) {
+                System.out.println("Error with lightswitch ID " + ID + ", switch is offline");
+            }
         }
     }
 

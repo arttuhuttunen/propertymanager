@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 
 public class Lightswitch {
@@ -37,18 +38,26 @@ public class Lightswitch {
     protected void connectSwitch(int ID) {
         //TODO: Create an socket connection connection to server
         int port = 8080;
-        try {
-            s = new Socket("localhost", port);
-            OutputStream os = s.getOutputStream();
-            String tempID = Integer.toString(ID);
-            tempID += "\n";
-            System.out.println("My ID is: " + tempID);
-            os.write(tempID.getBytes());
-            os.flush();
-            ConnListener cl = new ConnListener(s);
-            cl.master = this;
-            cl.start();
-        } catch (IOException e) {e.printStackTrace();}
+        while (true) {
+            try {
+                s = new Socket("localhost", port);
+                OutputStream os = s.getOutputStream();
+                String tempID = Integer.toString(ID);
+                tempID += "\n";
+                System.out.println("My ID is: " + tempID);
+                os.write(tempID.getBytes());
+                os.flush();
+                ConnListener cl = new ConnListener(s);
+                cl.master = this;
+                cl.start();
+                break;
+            } catch (IOException e) {
+                System.out.println("Error with connection, trying to reconnect in 10 seconds...");
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ie) {ie.printStackTrace();}
+            }
+        }
     }
     class ConnListener extends Thread {
         private Socket socket;
@@ -66,7 +75,16 @@ public class Lightswitch {
                 OutputStream os = socket.getOutputStream();
                 while (true) {
                     System.out.println("Waiting for status change...");
-                    tempString = in.readLine();
+                    //This try-catch block checks if server connection crashes
+                    //After notifying about crash, it resets socket and tries to reconnect
+                    try {
+                        tempString = in.readLine();
+                    } catch (SocketException s) {
+                        System.out.println("Connection to server lost, please restart switch");
+                        master.s = null;
+                        master.connectSwitch(ID);
+                        break;
+                    }
                     System.out.println(tempString);
                     master.receiveStatus(tempString);
                 }
@@ -87,7 +105,10 @@ public class Lightswitch {
             } else if (lightstatus == Mode.OFF) {
                 setLightStatus(Mode.ON);
                 status = "ON\n";
-            } else {throw new IllegalArgumentException();}
+            } else  {
+                connectSwitch(ID);
+                status = "ON\n";
+            }
             out.write(status);
             out.flush();
             System.out.println("Sending status " + status + " to server");
