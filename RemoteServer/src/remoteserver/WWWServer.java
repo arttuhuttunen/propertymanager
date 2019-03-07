@@ -74,7 +74,6 @@ public class WWWServer {
 
             if(t.getRequestMethod().equals("POST")) {
 
-
                 InputStream io = t.getRequestBody();
                 BufferedReader in = new BufferedReader(new InputStreamReader(io));
                 String inputString = in.readLine();
