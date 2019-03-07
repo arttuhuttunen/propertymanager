@@ -4,6 +4,7 @@ package controlserver;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import remoteserver.remoteInterface;
 
@@ -28,8 +29,11 @@ public class RMIServer extends UnicastRemoteObject implements remoteInterface {
 
     }
     public String hello() throws RemoteException{
-        System.out.println("Remote method hello() called");
-        return "RMI connection test completed successfully.";
+        try {
+            System.out.println("Incoming RMI Connection from " + UnicastRemoteObject.getClientHost());
+        } catch (ServerNotActiveException S) {
+            System.out.println("RMI Connection error");}
+        return "RMI Connection successful";
     }
 
     public String executeTask(String id) throws RemoteException {

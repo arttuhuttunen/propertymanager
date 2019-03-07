@@ -59,7 +59,6 @@ public class RMIClient extends Thread implements remoteInterface{
     public void run() {
         try {
             Registry registry = LocateRegistry.getRegistry(8888);
-            System.out.println(registry.list());
             stub = (remoteInterface) registry.lookup("RMIServer");
             String response = stub.hello();
             System.out.println(response);

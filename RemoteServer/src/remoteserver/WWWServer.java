@@ -83,6 +83,7 @@ public class WWWServer {
                 //Parces post request and perform operation based on element
                 if (attribute.contains("ls")) {
                     int lsInt = Integer.parseInt(attribute.substring(2));
+
                     if (master.getLightstatus(lsInt).equals("OFF")) {
                         master.setLightstatus(lsInt, "ON");
 
@@ -90,6 +91,8 @@ public class WWWServer {
                     } else if (master.getLightstatus(lsInt).equals("ON")) {
                         master.setLightstatus(lsInt, "OFF");
                         redirectToIndex(t);
+                    } else {
+                        master.setLightstatus(lsInt, "ON");
                     }
                 }
                 if (attribute.contains("temperature")) {

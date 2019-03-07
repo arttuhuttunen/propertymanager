@@ -80,6 +80,10 @@ public class ControlServer {
             System.out.println("Setting serverside lightstatus " + status + " to lamp id " + ID);
             sendLightStatus(ID, lightstatus[arrayid]);
         }
+        else {
+            lights.get(ID).setText("Light "+ ID +" ON");
+            lightstatus[arrayid] = Mode.ON;
+            sendLightStatus(ID, Mode.ON);}
         mainPanel.updateUI();
     }
     public void setTemperature(String temperature) {
@@ -122,7 +126,9 @@ public class ControlServer {
 
     //Getter for Lightstatus
     public String getLightstatus(int ID) {
-        return lightstatus[ID - 1].toString();
+        try {
+            return lightstatus[ID - 1].toString();
+        } catch (NullPointerException N) {return "Not Connected";}
     }
 
 
@@ -135,9 +141,9 @@ public class ControlServer {
         //TODO: Start your RMI- and socket-servers here
         ls.master = this;
         ls.start();
-        for (int i = 0; i < 10; i++) {
+        /*for (int i = 0; i < 10; i++) {
             lightstatus[i] = Mode.OFF;
-        }
+        }*/
         try {
             RMIServer rmi = new RMIServer(8888);
             rmi.master = this;
