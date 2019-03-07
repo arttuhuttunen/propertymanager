@@ -1,16 +1,9 @@
 package controlserver;
 
-import com.sun.net.httpserver.HttpServer;
-import remoteserver.remoteInterface;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -76,7 +69,6 @@ public class ControlServer {
 
     public void setLightstatus (int ID, String status){
         int arrayid = ID -1;
-        System.out.println("ControlServer method setLightstatus() started");
         if (status.equals("ON")) {
             lights.get(ID).setText("Light "+ ID +" ON");
             lightstatus[arrayid] = Mode.ON;
@@ -88,6 +80,10 @@ public class ControlServer {
             System.out.println("Setting serverside lightstatus " + status + " to lamp id " + ID);
             sendLightStatus(ID, lightstatus[arrayid]);
         }
+        else {
+            lights.get(ID).setText("Light "+ ID +" ON");
+            lightstatus[arrayid] = Mode.ON;
+            sendLightStatus(ID, Mode.ON);}
         mainPanel.updateUI();
     }
     public void setTemperature(String temperature) {
@@ -108,9 +104,13 @@ public class ControlServer {
             sendLightStatus(ID, Mode.ON);
         }
         else {
-            lights.get(ID).setText("Light "+ ID +" ON");
-            lightstatus[arrayid] = Mode.ON;
-            sendLightStatus(ID, Mode.ON);
+            try {
+                sendLightStatus(ID, Mode.ON);
+                lights.get(ID).setText("Light "+ ID +" ON");
+                lightstatus[arrayid] = Mode.ON;
+            } catch (NullPointerException n) {
+                System.out.println("Error with lightswitch ID " + ID + ", switch is offline");
+            }
         }
     }
 
@@ -130,8 +130,9 @@ public class ControlServer {
 
     //Getter for Lightstatus
     public String getLightstatus(int ID) {
-        //System.out.println("Controlserver method getLightstatus() called \n Lamp id is: " + ID + " and return status is " + lightstatus[ID]);
-        return lightstatus[ID - 1].toString();
+        try {
+            return lightstatus[ID - 1].toString();
+        } catch (NullPointerException N) {return "Not Connected";}
     }
 
 
@@ -144,16 +145,13 @@ public class ControlServer {
         //TODO: Start your RMI- and socket-servers here
         ls.master = this;
         ls.start();
-        for (int i = 0; i < 10; i++) {
+        /*for (int i = 0; i < 10; i++) {
             lightstatus[i] = Mode.OFF;
-        }
+        }*/
         try {
             RMIServer rmi = new RMIServer(8888);
             rmi.master = this;
             rmi.run();
-            //remoteInterface stub = (remoteInterface) UnicastRemoteObject.exportObject(rmi, 0);
-            //Registry registry = LocateRegistry.createRegistry(8888);
-            //registry.rebind("RMIServer", rmi);
         } catch (RemoteException r) {r.printStackTrace();}
 
 

@@ -18,8 +18,6 @@ public class WWWServer {
 
     private HttpServer server;
     RMIClient RMImaster;
-    private enum Mode {OFF, ON, NOTCONNECTED}
-    //private Mode[] lightstatus = new Mode[10];
 
 
     public WWWServer(InetSocketAddress address) {
@@ -35,33 +33,20 @@ public class WWWServer {
         threadID = Thread.currentThread().getId();
         System.out.println("Thread n:o " + threadID + " started");
 
-
-        //Sets light statuses for testing purposes before actually getting light statuses
-        /*for (int i = 1; i < 10; i++) {
-            if (i % 2 == 0) {
-                lightstatus[i] = Mode.ON;
-            } else {
-                lightstatus[i] = Mode.OFF;
-            }
-        }*/
-
     }
     public void run() {
         server.start();
     }
 
     public void setLightstatus(int lightID, String value) throws RemoteException {
-        //lightstatus[lightID] = value;
-        System.out.println("WWWServer method setLightstatus() started");
         RMImaster.sendLightstatus(value, lightID);
     }
+
     public void setTemperature(String temperature) throws RemoteException{
         RMImaster.sendTemperature(temperature);
     }
+
     public String getTemperature() throws RemoteException{
-        System.out.println("Method getTemperature() started");
-        //System.out.println(RMImaster.getTemperature());
-        System.out.println("Local getTemperature() value is : " + RMImaster.getTemperature());
         return RMImaster.getTemperature();
     }
     public String getLightstatus(int lightID) throws RemoteException{
@@ -89,27 +74,24 @@ public class WWWServer {
 
             if(t.getRequestMethod().equals("POST")) {
 
-
                 InputStream io = t.getRequestBody();
                 BufferedReader in = new BufferedReader(new InputStreamReader(io));
                 String inputString = in.readLine();
-                System.out.println(inputString);
                 String attribute = inputString.substring(0, inputString.indexOf('='));
-                System.out.println(attribute);
 
-                //Parces post request anc perform operation based on element
+                //Parces post request and perform operation based on element
                 if (attribute.contains("ls")) {
-                    System.out.println("LS debug");
                     int lsInt = Integer.parseInt(attribute.substring(2));
-                    System.out.println("Ls test with id " + lsInt);
+
                     if (master.getLightstatus(lsInt).equals("OFF")) {
                         master.setLightstatus(lsInt, "ON");
 
                         redirectToIndex(t);
                     } else if (master.getLightstatus(lsInt).equals("ON")) {
                         master.setLightstatus(lsInt, "OFF");
-                        System.out.println(master.getLightstatus(lsInt));
                         redirectToIndex(t);
+                    } else {
+                        master.setLightstatus(lsInt, "ON");
                     }
                 }
                 if (attribute.contains("temperature")) {
@@ -117,23 +99,13 @@ public class WWWServer {
                     master.setTemperature(temperature);
                     redirectToIndex(t);
                 }
-                /*Headers headers = t.getResponseHeaders();
-                headers.add("Content-type", "text/html");
-                headers.add("Location", "/");
-                t.sendResponseHeaders(303, 0);
-                t.close();*/
-
-
-
             }
 
 
             //HTML file loading
             File file = new File("RemoteServer\\src\\remoteserver\\index.html");
             String mime = "text/html";
-            System.out.println("Loading file from " + file.getPath());
             htmlEditor(file);
-            System.out.println("Bug test 2: HTML editor finished");
             File newFile = new File("RemoteServer\\src\\remoteserver\\index2.html");
 
 
@@ -149,26 +121,19 @@ public class WWWServer {
             os = t.getResponseBody();
             os.write(bytearray, 0, bytearray.length);
             os.close();
-            System.out.println("Sending html file...");
 
         }
+
+        //Purpose of this method is to create new HTML-file on disk, which will be sent to user
+        //This is one kind of way to create dynamic website without using javascript or .jsp
         private void htmlEditor(File html) {
-            //This loop assigns test values to buttons
-
-
 
             try {
-                System.out.println("Bug test 1, HTML editor started");
                 String line;
                 List<String> lines = new ArrayList<String>();
                 FileReader fileReader = new FileReader(html);
-                System.out.println("fileReader initialized");
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
-                System.out.println("bufferedReader started");
                 while ((line = bufferedReader.readLine()) != null) {
-                    if (line.contains("$testvalue")) {
-                        line = line.replace("$testvalue", "If you see this, html file replacing works properly");
-                    }
                     if (line.contains("$temperature")) {
                         line = line.replace("$temperature", master.getTemperature());
                     }

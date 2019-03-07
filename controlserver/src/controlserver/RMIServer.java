@@ -1,12 +1,10 @@
 package controlserver;
 
-import javafx.concurrent.Task;
 
-import java.net.MalformedURLException;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import remoteserver.remoteInterface;
 
@@ -31,8 +29,11 @@ public class RMIServer extends UnicastRemoteObject implements remoteInterface {
 
     }
     public String hello() throws RemoteException{
-        System.out.println("Remote method hello() called");
-        return "RMI connection test completed successfully.";
+        try {
+            System.out.println("Incoming RMI Connection from " + UnicastRemoteObject.getClientHost());
+        } catch (ServerNotActiveException S) {
+            System.out.println("RMI Connection error");}
+        return "RMI Connection successful";
     }
 
     public String executeTask(String id) throws RemoteException {
@@ -44,10 +45,6 @@ public class RMIServer extends UnicastRemoteObject implements remoteInterface {
     }
 
     public void setLightstatus(String lightstatus, int ID) throws RemoteException {
-        System.out.println("RMIServer method setLightstatus() started");
-        master.setLightstatus(ID, lightstatus);
-    }
-    public void sendLightstatus(String lightstatus, int ID) {
         master.setLightstatus(ID, lightstatus);
     }
 
