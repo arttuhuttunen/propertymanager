@@ -18,6 +18,7 @@ public class WWWServer {
 
     private HttpServer server;
     RMIClient RMImaster;
+    private final List<String> templateHTML;
 
 
     public WWWServer(InetSocketAddress address) {
@@ -33,8 +34,8 @@ public class WWWServer {
         threadID = Thread.currentThread().getId();
         System.out.println("Thread n:o " + threadID + " started");
         File file = new File("RemoteServer\\src\\remoteserver\\index.html");
-        FileReader fileReader = null;
-        final List<String> templateHTML = new ArrayList<>();
+        FileReader fileReader;
+        templateHTML = new ArrayList<>();
         try {
             String line;
             fileReader = new FileReader(file);
@@ -45,6 +46,7 @@ public class WWWServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(templateHTML);
     }
     public void run() {
         server.start();
@@ -62,8 +64,8 @@ public class WWWServer {
         return RMImaster.getTemperature();
     }
 
-    private String getTemplateHTML() {
-        return
+    private List<String> getTemplateHTML() {
+        return templateHTML;
     }
 
     public String getLightstatus(int lightID) throws RemoteException{
@@ -146,12 +148,11 @@ public class WWWServer {
         private String htmlEditor() {
 
             try {
-                String line;
+                //String line;
                 //List<String> lines = new ArrayList<String>();
+                List<String> templateString = master.getTemplateHTML();
                 StringBuilder lines = new StringBuilder();
-                /*FileReader fileReader = new FileReader(html);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);*/
-                while ((line = master.template) != null) {
+                /*while ((line = master.template) != null) {
                     if (line.contains("$temperature")) {
                         line = line.replace("$temperature", master.getTemperature());
                     }
@@ -161,6 +162,20 @@ public class WWWServer {
                             line = line.replace("$value" + i, master.getLightstatus(i));
                         }
                     }
+                    lines.append(line);
+                }
+                */
+                for (String line : templateString) {
+                    if (line.contains("$temperature")) {
+                        line = line.replace("$temperature", master.getTemperature());
+                    }
+                    //Loop changes button values to light values
+                    for (int i = 1; i < 10; i++) {
+                        if(line.contains("$value" + i)) {
+                            line = line.replace("$value" + i, master.getLightstatus(i));
+                        }
+                    }
+
                     lines.append(line);
                 }
 
