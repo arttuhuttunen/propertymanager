@@ -20,7 +20,6 @@ public class RemoteServer {
             rm.start();
             ws.RMImaster = rm;
             ws.run();
-
         } catch (Exception e) {e.printStackTrace();}
     }
 

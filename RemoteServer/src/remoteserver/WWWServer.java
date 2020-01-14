@@ -33,7 +33,8 @@ public class WWWServer {
         long threadID;
         threadID = Thread.currentThread().getId();
         System.out.println("Thread n:o " + threadID + " started");
-        File file = new File("RemoteServer\\src\\remoteserver\\index.html");
+        char separator = File.separatorChar;
+        File file = new File("RemoteServer"+ separator +"src"+ separator + "remoteserver"+ separator +"index.html");
         FileReader fileReader;
         templateHTML = new ArrayList<>();
         try {
@@ -43,10 +44,11 @@ public class WWWServer {
             while ((line = bufferedReader.readLine()) != null) {
                 templateHTML.add(line);
             }
+            System.out.println("Template read to memory successful");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(templateHTML);
+
     }
     public void run() {
         server.start();
@@ -120,13 +122,8 @@ public class WWWServer {
                 }
             }
 
-
-            //HTML file loading
-            File file = new File("RemoteServer\\src\\remoteserver\\index.html");
             String mime = "text/html";
             String stringToSend = htmlEditor();
-            //File newFile = new File("RemoteServer\\src\\remoteserver\\index2.html");
-
 
             //Sending HTML-file
             Headers h = t.getResponseHeaders();
@@ -143,28 +140,15 @@ public class WWWServer {
 
         }
 
-        //Purpose of this method is to create new HTML-file on disk, which will be sent to user
-        //This is one kind of way to create dynamic website without using javascript or .jsp
+        /*Purpose of this method is to replace '$' marked keywords in template html loaded in initialization,
+        and replace them with proper values
+         */
         private String htmlEditor() {
 
             try {
-                //String line;
-                //List<String> lines = new ArrayList<String>();
                 List<String> templateString = master.getTemplateHTML();
                 StringBuilder lines = new StringBuilder();
-                /*while ((line = master.template) != null) {
-                    if (line.contains("$temperature")) {
-                        line = line.replace("$temperature", master.getTemperature());
-                    }
-                    //Loop changes button values to light values
-                    for (int i = 1; i < 10; i++) {
-                        if(line.contains("$value" + i)) {
-                            line = line.replace("$value" + i, master.getLightstatus(i));
-                        }
-                    }
-                    lines.append(line);
-                }
-                */
+
                 for (String line : templateString) {
                     if (line.contains("$temperature")) {
                         line = line.replace("$temperature", master.getTemperature());
@@ -180,14 +164,6 @@ public class WWWServer {
                 }
 
                 return lines.toString();
-
-                /*FileWriter fileWriter = new FileWriter("RemoteServer\\src\\remoteserver\\index2.html");
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                for (String s : lines) {
-                    bufferedWriter.write(s);
-                }
-                bufferedWriter.flush();
-                bufferedWriter.close();*/
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
