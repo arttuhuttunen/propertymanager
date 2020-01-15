@@ -1,6 +1,6 @@
 # Propertymanager
 
-This is a distributed system project made for University of Turku's course Techniques for *Distributed Systems and Cloud Services* course.
+This is a distributed system project made for University of Turku's course *Techniques for Distributed Systems and Cloud Services* course.
 Assignment was to create a basic house control system consisting of three elements: 
 * Lights to be controlled
 * Controlserver consisting of Controlserver, which starts RMIServer and Lightswitchserver
