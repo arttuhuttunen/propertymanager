@@ -33,6 +33,12 @@ public class lightswitchServer extends Thread {
                 System.out.println("Incoming connection from " + cs.getInetAddress() + " with port " + cs.getPort());
                 BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
                 tempID = Integer.parseInt(in.readLine());
+                if (tempID < 1 || tempID > 9) {
+                    System.out.println("Refused connection from faulty id: " + tempID);
+                    cs.close();
+                    in.close();
+                    continue;
+                }
                 System.out.println("Light with id " + tempID + " connected");
                 sockets[tempID - 1] = cs;
                 ConnHandler ch = new ConnHandler(sockets[tempID - 1], tempID);
